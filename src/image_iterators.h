@@ -2,7 +2,7 @@
 #define IMAGE_ITERATORS_
 #define cimg_use_jpeg
 #define cimg_use_lapack
-#include "CImg/CImg.h"
+#include "CImg.h"
 #include <string>
 #include <iostream>
 #include <vector>

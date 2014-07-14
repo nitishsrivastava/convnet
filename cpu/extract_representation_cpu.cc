@@ -1,5 +1,5 @@
 #define cimg_use_jpeg
-#include "CImg/CImg.h"
+#include "CImg.h"
 #include <tclap/CmdLine.h>
 #include "convnet_cpu.h"
 #include <string>
