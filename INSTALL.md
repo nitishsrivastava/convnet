@@ -5,8 +5,10 @@ Dependencies
 - CUDA (>= 4.0) (Not required for the CPU-only feature extractor).
 
 - HDF5 (>= 1.8.11)
-  Download the source code http://www.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.gz
-  To install locally -
+  
+Download the source code http://www.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.gz
+  
+To install locally -
   $ ./configure --prefix=~/local/ --enable-threadsafe --with-pthread=/usr/include
   $ make
   $ make install
