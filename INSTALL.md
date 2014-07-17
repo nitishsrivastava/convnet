@@ -31,6 +31,7 @@
 - libjpeg
   
 	This is often present on standard operating systems since it is used by a lot of programs.
+
   	It can be downloaded from [http://libjpeg.sourceforge.net/](http://libjpeg.sourceforge.net/)
 
 - This code uses C++11. Some features require gcc >= 4.6.
