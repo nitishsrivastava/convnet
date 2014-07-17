@@ -55,7 +55,7 @@ Compiling the full package
 - Set the compute capability for your GPU.
 - Run make in `convnet`.
 
-Add convnet/bin to your PATH variable (maybe in your .bashrc)
+Add `convnet/bin` to your PATH variable (maybe in your .bashrc)
 
 
 ###Run test examples###
