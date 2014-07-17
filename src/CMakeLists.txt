@@ -69,7 +69,6 @@ TARGET_LINK_LIBRARIES( run_grad_check cudaobj
 ADD_EXECUTABLE( jpeg2hdf5 jpeg2hdf5.cc
                 $<TARGET_OBJECTS:datahandler>
                 $<TARGET_OBJECTS:common> )
-CUDA_ADD_CUBLAS_TO_TARGET( jpeg2hdf5 )
 TARGET_LINK_LIBRARIES( jpeg2hdf5 cudaobj
                        ${HDF5_LIBRARIES}
                        ${PROTOBUF_LIBRARIES}

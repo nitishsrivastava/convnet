@@ -16,7 +16,6 @@ SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/convnet_config.pb.h
 
 # extract_representation_cpu
 ADD_EXECUTABLE( extract_representation_cpu convnet_config.pb.cc cpuconv.cc convnet_cpu.cc extract_representation_cpu.cc )
-CUDA_ADD_CUBLAS_TO_TARGET( extract_representation_cpu )
 TARGET_LINK_LIBRARIES( extract_representation_cpu
                        ${CBLAS_LIBRARY}
                        ${HDF5_LIBRARIES}
