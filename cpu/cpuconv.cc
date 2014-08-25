@@ -6,7 +6,6 @@
 
 #ifdef USE_OPENBLAS
 #include <cblas.h>
-#include <common.h>
 #endif
 
 using namespace std;

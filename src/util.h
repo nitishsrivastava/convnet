@@ -11,7 +11,7 @@
 #include <string>
 #define cimg_use_jpeg
 #define cimg_use_lapack
-#include "CImg/CImg.h"
+#include "CImg.h"
 #include "cudamat.cuh"
 #include <stdio.h>
 #include <google/protobuf/text_format.h>
