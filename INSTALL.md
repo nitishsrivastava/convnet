@@ -1,0 +1,66 @@
+
+###Dependencies###
+
+
+#####CUDA (>= 4.0) #####
+ (Not required for the CPU-only feature extractor).
+
+#####HDF5 (>= 1.8.11) #####
+	
+Download the source code: [http://www.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.gz](http://www.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.gz)
+  
+To install locally -
+
+  	> ./configure --prefix=~/local/ --enable-threadsafe --with-pthread=/usr/include
+	> make	
+	> make install
+
+#####Protocol Buffers (>= 2.5.0)#####
+  
+Download the source code: 
+	[https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz](https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz)
+  
+To install locally -
+
+  	> ./configure --prefix=~/local/
+  	> make
+  	> make install
+
+#####libjpeg#####
+  
+This is often present on standard operating systems since it is used by a lot of programs.
+
+It can be downloaded from [http://libjpeg.sourceforge.net/](http://libjpeg.sourceforge.net/)
+
+#####C++ 11#####
+This code uses C++11. Some features require gcc >= 4.6.
+
+
+###Hardware requirements###
+
+NVIDIA GPU(s).
+
+Multi-GPU feature requires Fermi boards.
+
+
+###Compilation###
+Compiling the CPU-only feature extractor
+
+- Set the paths to the dependencies in `convnet/cpu/Makefile`
+- Run make in `convnet/cpu`.
+
+Compiling the full package
+
+- Set the paths to the dependencies in `convnet/Makefile`
+- Set the compute capability for your GPU.
+- Run make in `convnet`.
+
+Add `convnet/bin` to your PATH variable (maybe in your .bashrc)
+
+
+###Run test examples###
+
+Examples of nets on `MNIST` and `ImageNet` are included in 
+`examples/mnist` and `examples/imagenet`.
+
+Follow the instructions in the respective README.md files.
