@@ -12,9 +12,6 @@
 #include "mpi.h"
 #endif
 #include <string>
-#define cimg_use_jpeg
-#define cimg_use_lapack
-#include "CImg/CImg.h"
 #include <stdio.h>
 #include <google/protobuf/text_format.h>
 #include "convnet_config.pb.h"
@@ -32,7 +29,6 @@
 #define MPITAG_WEIGHTGRAD 11
 #define MPITAG_TRAINERROR 12
 
-using namespace cimg_library;
 using namespace std;
 
 template<class T> void ReadPbtxt(const string& pbtxt_file, T& model);
@@ -59,7 +55,6 @@ string GetTimeStamp();
 void TimestampModelFile(const string& src_file, const string& dest_file, const string& timestamp);
 
 bool ReadLines(const string& filename, vector<string>& lines);
-void DrawRectange(CImg<float>& img, int xmin, int ymin, int xmax, int ymax, const float* color, int thickness);
 
 // Outputs a string that describes the err_code.
 string GetStringError(int err_code);
@@ -71,25 +66,24 @@ void AddVectors(vector<float>& a, vector<float>& b);
 // ImageDisplayer
 //
 
+#include <opencv2/core/core.hpp>
+
 class ImageDisplayer {
- public:
-  ImageDisplayer();
+public:
   ImageDisplayer(int width, int height, int num_colors, bool show_separate, const string& name);
   
   void SetTitle(const string& title) {title_ = title;}
   void DisplayImage(float* data, int spacing, int image_id);
-  void CreateImage(const float* data, int num_images, int image_id, CImg<float>& img);
   void DisplayWeights(float* data, int size, int num_filters, int display_size, bool yuv = false);
   void DisplayLocalization(float* data, float* preds, float* gt, int num_images);
   void SetFOV(int size, int stride, int pad1, int pad2, int patch_size, int num_fov_x, int num_fov_y);
-  
+
+private:
+  void CreateImage(const float* data, int num_images, int image_id, cv::Mat &image);
 
   static void YUVToRGB(const float* yuv, float* rgb, int spacing);
   static void RGBToYUV(const float* rgb, float* yuv, int spacing);
 
- private:
-  
-  CImgDisplay disp_;
   int width_, height_, num_colors_;
   bool show_separate_;
   string title_;
@@ -97,6 +91,5 @@ class ImageDisplayer {
   float fov_size_, fov_stride_, fov_pad1_, fov_pad2_;
   int num_fov_x_, num_fov_y_;
 };
-
 
 #endif
