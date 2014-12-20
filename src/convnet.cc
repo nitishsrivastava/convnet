@@ -211,6 +211,9 @@ void ConvNet::BuildNet() {
       if (image_size_y <= 0) image_size_y = model_.patch_size();
       if (image_size_x <= 0) image_size_x = model_.patch_size();
       if (image_size_t <= 0) image_size_t = 1;
+      image_size_y_ = image_size_y;
+      image_size_x_ = image_size_x;
+      image_size_t_ = image_size_t;
     } else {
       image_size_y = l->incoming_edge_[0]->GetNumModulesY();
       image_size_x = l->incoming_edge_[0]->GetNumModulesX();
@@ -491,7 +494,7 @@ void ConvNet::SetupDataset(const string& train_data_config_file,
   train_dataset_ = new DataHandler(model_.train_dataset());
   if (localizer_) {
     train_dataset_->SetFOV(fov_size_, fov_stride_, fov_pad1_, fov_pad2_,
-                           model_.patch_size(), num_fov_x_, num_fov_y_);
+                           image_size_x_, num_fov_x_, num_fov_y_); // TODO: image_size_y_?
   }
   SetBatchsize(train_dataset_->GetBatchSize());
   int dataset_size = train_dataset_->GetDataSetSize();
@@ -501,7 +504,7 @@ void ConvNet::SetupDataset(const string& train_data_config_file,
     val_dataset_ = new DataHandler(model_.valid_dataset());
     if (localizer_) {
       val_dataset_->SetFOV(fov_size_, fov_stride_, fov_pad1_, fov_pad2_,
-                           model_.patch_size(), num_fov_x_, num_fov_y_);
+                           image_size_x_, num_fov_x_, num_fov_y_); // TODO: image_size_y_?
     }
     dataset_size = val_dataset_->GetDataSetSize();
     val_dataset_->AllocateMemory();
@@ -812,11 +815,9 @@ void ConvNet::TimestampModel() {
 }
 
 void ConvNet::SetupLocalizationDisplay() {
-  int image_size = model_.patch_size();
-  localization_display_ = new ImageDisplayer(image_size, image_size, 3, false,
-                                          "localization");
+  localization_display_ = new ImageDisplayer(image_size_x_, image_size_y_, 3, false, "localization");
   localization_display_->SetFOV(fov_size_, fov_stride_, fov_pad1_, fov_pad2_,
-                                image_size, num_fov_x_, num_fov_y_);
+                                image_size_x_, num_fov_x_, num_fov_y_); // TODO: image_size_y_?
 }
 
 void ConvNet::DisplayLocalization() {

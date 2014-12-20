@@ -308,51 +308,69 @@ void AddVectors(vector<float>& a, vector<float>& b) {
 // ImageDisplayer
 //
 
-void DrawRectange(CImg<float>& img, int xmin, int ymin, int xmax, int ymax, const float* color, int thickness) {
-  for (int i = 0; i < thickness; i++) {
-    img.draw_rectangle(xmin-i, ymin-i, xmax+i, ymax+i, color, 1.0, ~0U);
-  }
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+using namespace cv;
+
+inline void resizeOCV(Mat &img, unsigned int width, unsigned int height) {
+  Mat out;
+  resize(img, out, Size(width, height), 0, 0, INTER_LINEAR);
+  img = out;
 }
+
+Mat image, image1, image2;
 
 ImageDisplayer::ImageDisplayer(int width, int height, int num_colors, bool show_separate, const string& title) :
-  width_(width), height_(height), num_colors_(num_colors),
-  show_separate_(show_separate), title_(title) {
-  disp_.set_title(title_.c_str());
-}
-
-ImageDisplayer::ImageDisplayer() :
-  width_(0), height_(0), num_colors_(3), show_separate_(false), title_("") {
+  width_(width),
+  height_(height),
+  num_colors_(num_colors),
+  show_separate_(show_separate),
+  title_(title) {
 }
 
 void ImageDisplayer::DisplayImage(float* data, int num_images, int image_id) {
-  CImg<float> img;
-  CreateImage(data, num_images, image_id, img);
-  disp_.set_title(title_.c_str());
-  img.display(disp_);
+  CreateImage(data, num_images, image_id, image);
+  namedWindow(title_.c_str(), WINDOW_AUTOSIZE);
+  imshow(title_.c_str(), image);
+  waitKey(1);
 }
 
-void ImageDisplayer::CreateImage(const float* data, int num_images, int image_id, CImg<float>& img) {
+void ImageDisplayer::CreateImage(const float* data, int num_images, int image_id, Mat &image) {
   int num_colors_width = (int)sqrt(num_colors_);
   int num_colors_height = (num_colors_ + num_colors_width - 1) / num_colors_width;
-  int display_width = show_separate_ ? width_ * num_colors_width: width_;
-  int display_height = show_separate_ ? height_ * num_colors_height: height_;
-  int display_colors = show_separate_ ? 1 : num_colors_;
+  int display_width = show_separate_ ? width_ * num_colors_width : width_;
+  int display_height = show_separate_ ? height_ * num_colors_height : height_;
+  int display_colors_type = show_separate_ ? CV_32FC1 : CV_32FC3;
 
-  img.assign(display_width, display_height, 1, display_colors);
-  img.fill(0);
-  float val;
-  for (int k = 0; k < num_colors_; k++) {
-    for (int i = 0; i < height_; i++) {
-      for (int j = 0; j < width_; j++) {
-        val = data[image_id + num_images * (j + width_ * (i + k * height_))];
-        if (show_separate_) {
-          img(j + (k % num_colors_width) * width_, i + (k / num_colors_width) * height_, 0, 0) = val;
-        } else {
-          img(j, i, 0, k) = val;
-        }
+  image.create(display_width, display_height, display_colors_type);
+  for (int k=0; k<num_colors_; k++)
+  {
+    int off_color = 0;
+    if (3==num_colors_)
+    {
+      off_color += 2-k;
+    }
+    for (int i=0; i<height_; ++i)
+    {
+      int off_width = 0;
+      int off_height = 0;
+      if (show_separate_)
+      {
+        off_width  = (k % num_colors_width) * width_;
+        off_height = (k / num_colors_width) * height_;
+      }
+      float *im = image.ptr<float>(i + off_height);
+
+      for (int j=0; j<width_; ++j)
+      {
+        float val = data[image_id + num_images * (j + width_ * (i + k * height_))];
+        im[num_colors_*(j + off_width) + off_color] = val;
       }
     }
   }
+  normalize(image, image, 0, 1, NORM_MINMAX);
 }
 
 void ImageDisplayer::YUVToRGB(const float* yuv, float* rgb, int spacing) {
@@ -379,10 +397,8 @@ void ImageDisplayer::RGBToYUV(const float* rgb, float* yuv, int spacing) {
 
 void ImageDisplayer::DisplayWeights(float* data, int size, int num_filters, int display_size, bool yuv) {
   int num_filters_w = int(sqrt(num_filters));
-  int num_filters_h = num_filters / num_filters_w +  (((num_filters % num_filters_w) > 0) ? 1 : 0);
+  int num_filters_h = num_filters / num_filters_w + (((num_filters % num_filters_w) > 0) ? 1 : 0);
   int data_pos, row, col;
-  CImg<float> img(size * num_filters_w, size * num_filters_h, 1, 3);
-  img.fill(0);
   float norm = 0;
   if (yuv) YUVToRGB(data, data, num_filters * size * size);
   for (int f = 0; f < num_filters; f++) {
@@ -395,6 +411,8 @@ void ImageDisplayer::DisplayWeights(float* data, int size, int num_filters, int 
       data[i * num_filters + f] /= norm;
     }
   }
+
+  image.create(size * num_filters_w, size * num_filters_h, CV_32FC3);
   for (int f = 0; f < num_filters; f++) {
     for (int k = 0; k < 3; k++) {
       for (int h = 0; h < size; h++) {
@@ -402,22 +420,29 @@ void ImageDisplayer::DisplayWeights(float* data, int size, int num_filters, int 
           data_pos = f + num_filters * (w + size * (h + size * k));
           col = w + size * (f % num_filters_w);
           row = h + size * (f / num_filters_w);
-          img(col, row, 0, k) = data[data_pos];
+
+          float *im = image.ptr<float>(row);
+          im[3*col+(2-k)] = data[data_pos];
         }
       }
     }
   }
-  const unsigned char color[] = {0, 0, 0};
-  img.resize(display_size, display_size);
+  normalize(image, image, 0, 1, NORM_MINMAX);
+
+  const Scalar color(0, 0, 0);
+  resizeOCV(image, display_size, display_size);
   for (int i = 0; i < num_filters_w; i++) {
-    int pos = (i * img.width()) / num_filters_w;
-    img.draw_line(pos, 0, pos, img.height(), color);
+    int pos = (i * image.cols/3) / num_filters_w;
+    line(image, Point(pos, 0), Point(pos, image.rows), color);
   }
   for (int i = 0; i < num_filters_h; i++) {
-    int pos = (i * img.height()) / num_filters_h;
-    img.draw_line(0, pos, img.width(), pos, color);
+    int pos = (i * image.rows) / num_filters_h;
+    line(image, Point(0, pos), Point(image.cols/3, pos), color);
   }
-  img.display(disp_);
+
+  namedWindow(title_.c_str(), WINDOW_AUTOSIZE);
+  imshow(title_.c_str(), image);
+  waitKey(1);
 }
 
 void ImageDisplayer::SetFOV(int size, int stride, int pad1, int pad2,
@@ -434,16 +459,15 @@ void ImageDisplayer::DisplayLocalization(float* data, float* preds, float* gt, i
   int image_id = 0;
 
   int num_fovs = num_fov_y_ * num_fov_x_;
-  
-  CImg<float> img;
-  CreateImage(data, num_images, image_id, img);
+
+  CreateImage(data, num_images, image_id, image1);
   const int image_size = 250;
-  img.resize(image_size, image_size);
+  resizeOCV(image1, image_size, image_size);
 
-  CImg<float> img2 = CImg<float>(img);
+  image2 = image1.clone();
 
-  const float green[] = {0, 1, 0};
-  const float blue[] = {0, 0, 1};
+  const Scalar green(0, 255, 0);
+  const Scalar blue(0, 0, 255);
 
   float fov_x, fov_y;
   gt += image_id;
@@ -471,11 +495,14 @@ void ImageDisplayer::DisplayLocalization(float* data, float* preds, float* gt, i
     int xmax_preds2 = (int)((xmax_preds + fov_x) * image_size);
     int ymax_preds2 = (int)((ymax_preds + fov_y) * image_size);
 
-    DrawRectange(img, xmin_gt2, ymin_gt2, xmax_gt2, ymax_gt2, green, 3);
-    DrawRectange(img2, xmin_preds2, ymin_preds2, xmax_preds2, ymax_preds2, blue, 3);
+    rectangle(image1, Point(xmin_gt2, ymin_gt2), Point(xmax_gt2, ymax_gt2), green, 3);
+    rectangle(image2, Point(xmin_preds2, ymin_preds2), Point(xmax_preds2, ymax_preds2), blue, 3);
   }
 
-  CImgList<float> img_list(img, img2);
-  img_list.display(disp_);
-
+  namedWindow("Localization1", WINDOW_AUTOSIZE);
+  imshow("Localization1", image1);
+  namedWindow("Localization2", WINDOW_AUTOSIZE);
+  imshow("Localization2", image2);
+  waitKey(1);
 }
+

@@ -168,8 +168,8 @@ class ConvNet {
   int max_iter_, batch_size_, current_iter_, lr_reduce_counter_;
   DataHandler *train_dataset_, *val_dataset_;
   string checkpoint_dir_, output_file_, model_name_;
-  ImageDisplayer displayer_;
   string model_filename_, timestamp_, log_file_, val_log_file_;
+  int image_size_x_, image_size_y_, image_size_t_;
 
   // Field of view.
   int fov_size_, fov_stride_, fov_pad1_, fov_pad2_;

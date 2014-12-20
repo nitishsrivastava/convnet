@@ -21,14 +21,11 @@ Dependencies
 - OpenCV
   Download the source code https://github.com/Itseez/opencv/archive/3.0.0-alpha.zip
   To quick install -
-  $ cmake-gui, set CMAKE_BUILD_TYPE to Release
+  $ sudo apt-get install libgtk2.0-dev pkg-config # for opencv imshow
+  $ cmake-gui, set CMAKE_BUILD_TYPE to Release, Configure & Generate
   $ cd build directory
   $ make -j7
   $ sudo make install
-
-- libjpeg
-  This is often present on standard operating systems since it is used by a lot of programs.
-  It can be downloaded from http://libjpeg.sourceforge.net/
 
 - This code uses C++11. Some features require gcc >= 4.6.
 
