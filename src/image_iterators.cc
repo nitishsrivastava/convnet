@@ -63,13 +63,11 @@ void getData(Mat &image, T* data_ptr) {
   int num_pixels = image.cols * image.rows;
   if (num_image_colors >= 3) {  // Image has 3 channels.
     // Convert from opencv Mat to format: "rr..gg..bb".
-    unsigned int base1 =     num_pixels;
-    unsigned int base2 = 2 * num_pixels;
     for (int j=0, posr=0; j < image.rows; ++j, posr+=image.cols) {
-      unsigned int offset0 =         posr;
-      unsigned int offset1 = base1 + posr;
-      unsigned int offset2 = base2 + posr;
-      char *imgr = image.ptr<char>(j);
+      unsigned int offset0 = posr;
+      unsigned int offset1 = posr + num_pixels;
+      unsigned int offset2 = posr + 2 * num_pixels;
+      unsigned char *imgr = image.ptr<unsigned char>(j);
       for (int k=0, posc=0; k < image.cols; ++k, posc+=3) {
         data_ptr[offset0 + k] = imgr[posc+2];
         data_ptr[offset1 + k] = imgr[posc+1];
@@ -77,8 +75,17 @@ void getData(Mat &image, T* data_ptr) {
       }
     }
   } else if (num_image_colors == 1) { // Image has 1 channel.
-    for (int i=0; i < 3; ++i) {
-      memcpy(data_ptr + i * num_pixels, image.data, num_pixels * sizeof(T));
+    // Convert from opencv Mat to format: "rr..gg..bb".
+    for (int j=0, posr=0; j < image.rows; ++j, posr+=image.cols) {
+      unsigned int offset0 = posr;
+      unsigned int offset1 = posr + num_pixels;
+      unsigned int offset2 = posr + 2 * num_pixels;
+      unsigned char *imgr = image.ptr<unsigned char>(j);
+      for (int k=0; k < image.cols; ++k) {
+        data_ptr[offset0 + k] = imgr[k];
+        data_ptr[offset1 + k] = imgr[k];
+        data_ptr[offset2 + k] = imgr[k];
+      }
     }
   } else {
     cerr << "Image has " << num_image_colors << "colors." << endl;
