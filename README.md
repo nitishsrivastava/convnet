@@ -16,4 +16,5 @@ Pre-trained models and examples for training and feature extraction are provided
 Coming soon.
 
 ### Documentation
+## Please go through the link below
 [here](http://torontodeeplearning.github.io/convnet/docs)
