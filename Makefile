@@ -1,4 +1,4 @@
-##################################
+############################################
 # Set path to dependencies.
 # Path to protocol buffers, hdf5.
 # OPENBLAS needs to be set only if openblas=yes.
