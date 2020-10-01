@@ -1,4 +1,4 @@
-### Welcome to ConvNet.
+### Welcome to ConvNet.  ###An amazing project
 ConvNet is a fast C++ based GPU implementation of Convolutional Neural Nets.
 - Supports Multi-GPU architectures (Multiple GPUs, Single machine).
 - Provides a fast CPU-only feature extractor.
